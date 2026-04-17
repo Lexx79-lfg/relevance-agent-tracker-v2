@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/components/celebrationburst.tsx","./src/hooks/userewardsound.ts","./src/lib/tracker.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/celebrationburst.tsx","./src/components/headerhero.tsx","./src/components/recentlogs.tsx","./src/components/statsgrid.tsx","./src/hooks/userewardsound.ts","./src/lib/tracker.ts"],"version":"5.9.3"}

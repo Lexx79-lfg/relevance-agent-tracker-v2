@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowDown,
-  CalendarDays,
-  Coins,
-  Flame,
   Minus,
-  Package,
   Plus,
-  RotateCcw,
-  Sparkles,
   Volume2,
-  VolumeX,
 } from "lucide-react";
+import { HeaderHero } from "./components/HeaderHero";
+import { RecentLogs } from "./components/RecentLogs";
+import { StatsGrid } from "./components/StatsGrid";
 import { CelebrationBurst } from "./components/CelebrationBurst";
 import { useRewardSound } from "./hooks/useRewardSound";
 import { TrackerState, daysBetween, getDefaultState, safeLoad, save, todayKey } from "./lib/tracker";
@@ -230,82 +225,18 @@ export default function App() {
             </div>
 
             <CardHeader className="pb-2">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <div className="mb-2 flex items-center gap-2 text-slate-300">
-                    <Sparkles className="h-5 w-5" />
-                    <span className="text-sm uppercase tracking-[0.25em] text-sky-200">The Relevance Agent</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Package className="h-8 w-8 text-amber-300" />
-                    <ArrowDown className="h-6 w-6 text-sky-300" />
-                    <CardTitle className="text-3xl text-slate-50 md:text-4xl">{state.todayMission || "Your Mission"}</CardTitle>
-                  </div>
-                  <p className="mt-2 max-w-2xl text-slate-300">
-                    Complete one mission. Log it. Earn the token. Every 4th token gets the full celebration.
-                  </p>
-                  <p className="mt-4 text-2xl font-bold leading-9 text-white md:text-3xl">{headline}</p>
-                  <p className="mt-2 max-w-3xl text-lg italic leading-8 text-slate-100">"{quote}"</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    className="rounded-2xl border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
-                    onClick={() => setState((previous) => ({ ...previous, soundOn: !previous.soundOn }))}
-                  >
-                    {state.soundOn ? <Volume2 className="mr-2 h-4 w-4" /> : <VolumeX className="mr-2 h-4 w-4" />}
-                    {state.soundOn ? "Sound On" : "Sound Off"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="rounded-2xl border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
-                    onClick={resetAll}
-                  >
-                    <RotateCcw className="mr-2 h-4 w-4" /> Reset
-                  </Button>
-                </div>
-              </div>
+              <HeaderHero
+                todayMission={state.todayMission}
+                headline={headline}
+                quote={quote}
+                soundOn={state.soundOn}
+                onToggleSound={() => setState((previous) => ({ ...previous, soundOn: !previous.soundOn }))}
+                onReset={resetAll}
+              />
             </CardHeader>
 
             <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-3">
-                <Card className="rounded-3xl border-slate-500/70 bg-slate-800/85 shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
-                  <CardContent className="flex items-center gap-4 p-6">
-                    <div className="rounded-2xl bg-amber-400/20 p-3 shadow-[0_0_24px_rgba(251,191,36,0.22)]">
-                      <Coins className="h-6 w-6 text-amber-300" />
-                    </div>
-                    <div>
-                      <div className="text-sm text-slate-200">Total Tokens</div>
-                      <div className="text-3xl font-bold">{state.tokens}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-3xl border-slate-500/70 bg-slate-800/85 shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
-                  <CardContent className="flex items-center gap-4 p-6">
-                    <div className="rounded-2xl bg-orange-400/20 p-3 shadow-[0_0_24px_rgba(251,146,60,0.22)]">
-                      <Flame className="h-6 w-6 text-orange-300" />
-                    </div>
-                    <div>
-                      <div className="text-sm text-slate-200">Current Streak</div>
-                      <div className="text-3xl font-bold">{state.streak}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-3xl border-slate-500/70 bg-slate-800/85 shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
-                  <CardContent className="flex items-center gap-4 p-6">
-                    <div className="rounded-2xl bg-sky-400/20 p-3 shadow-[0_0_24px_rgba(56,189,248,0.22)]">
-                      <CalendarDays className="h-6 w-6 text-sky-300" />
-                    </div>
-                    <div>
-                      <div className="text-sm text-slate-200">Today</div>
-                      <div className="text-lg font-semibold">{todayKey()}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <StatsGrid tokens={state.tokens} streak={state.streak} today={todayKey()} />
 
               <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                 <Card className="rounded-3xl border-slate-500/70 bg-slate-800/85 shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
@@ -390,30 +321,7 @@ export default function App() {
                 </Card>
 
                 <div className="space-y-6">
-                  <Card className="rounded-3xl border-slate-500/70 bg-slate-800/85 shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
-                    <CardHeader>
-                      <CardTitle className="text-xl">Recent Logs</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {state.notes.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-slate-600 p-4 text-sm text-slate-200">
-                          No logs yet. Complete a mission, add a note, and earn your first token.
-                        </div>
-                      ) : (
-                        state.notes.map((note, index) => (
-                          <motion.div
-                            key={`${note.date}-${index}`}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4"
-                          >
-                            <div className="mb-2 text-xs text-slate-200">{note.date}</div>
-                            <div className="whitespace-pre-wrap text-sm text-slate-200">{note.text}</div>
-                          </motion.div>
-                        ))
-                      )}
-                    </CardContent>
-                  </Card>
+                  <RecentLogs notes={state.notes} />
                 </div>
               </div>
             </CardContent>
