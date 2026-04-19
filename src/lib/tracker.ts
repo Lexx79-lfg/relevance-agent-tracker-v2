@@ -1,5 +1,5 @@
 export const STORAGE_KEY = "relevance-agent-token-tracker-v3";
-export const MILESTONE_EVERY = 4;
+export const MILESTONE_EVERY = 5;
 
 export type TrackerState = {
   tokens: number;
@@ -9,7 +9,8 @@ export type TrackerState = {
   todayMission: string;
   notes: { date: string; text: string }[];
   soundOn: boolean;
-  volume: number;
+  regularVolume: number;
+  milestoneVolume: number;
 };
 
 export function todayKey() {
@@ -31,7 +32,8 @@ export function getDefaultState(): TrackerState {
     todayMission: "Operation Deploy App 🚀",
     notes: [],
     soundOn: true,
-    volume: 82,
+    regularVolume: 42,
+    milestoneVolume: 78,
   };
 }
 
@@ -48,6 +50,18 @@ export function safeLoad(): TrackerState {
       ...parsed,
       milestone: MILESTONE_EVERY,
       notes: Array.isArray(parsed.notes) ? parsed.notes : [],
+      regularVolume:
+        typeof parsed.regularVolume === "number"
+          ? parsed.regularVolume
+          : typeof (parsed as Partial<{ volume: number }>).volume === "number"
+            ? (parsed as Partial<{ volume: number }>).volume ?? getDefaultState().regularVolume
+            : getDefaultState().regularVolume,
+      milestoneVolume:
+        typeof parsed.milestoneVolume === "number"
+          ? parsed.milestoneVolume
+          : typeof (parsed as Partial<{ volume: number }>).volume === "number"
+            ? Math.max((parsed as Partial<{ volume: number }>).volume ?? getDefaultState().milestoneVolume, 60)
+            : getDefaultState().milestoneVolume,
     };
   } catch {
     return getDefaultState();

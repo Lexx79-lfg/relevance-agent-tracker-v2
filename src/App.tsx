@@ -9,7 +9,7 @@ import { HeaderHero } from "./components/HeaderHero";
 import { RecentLogs } from "./components/RecentLogs";
 import { StatsGrid } from "./components/StatsGrid";
 import { CelebrationBurst } from "./components/CelebrationBurst";
-import { useRewardSound } from "./hooks/useRewardSound";
+import { REWARD_PROFILES, RewardProfileName, useRewardSound } from "./hooks/useRewardSound";
 import { TrackerState, daysBetween, getDefaultState, safeLoad, save, todayKey } from "./lib/tracker";
 
 const QUOTES = [
@@ -27,6 +27,8 @@ const HEADLINES = [
   "Small wins change lives.",
   "Complete the mission. Claim the reward.",
 ];
+
+const REWARD_PROFILE_NAME: RewardProfileName = "default";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "default" | "outline";
@@ -154,7 +156,10 @@ export default function App() {
     save(state);
   }, [state]);
 
-  const playSound = useRewardSound(state.soundOn, state.volume);
+  const playSound = useRewardSound(state.soundOn, {
+    regular: state.regularVolume,
+    milestone: state.milestoneVolume,
+  }, REWARD_PROFILES[REWARD_PROFILE_NAME]);
   const milestoneMod = state.tokens % state.milestone;
   const toNextMilestone = state.milestone - (milestoneMod || state.milestone);
   const progressValue = (milestoneMod / state.milestone) * 100;
@@ -208,7 +213,8 @@ export default function App() {
     setState({
       ...getDefaultState(),
       soundOn: state.soundOn,
-      volume: state.volume,
+      regularVolume: state.regularVolume,
+      milestoneVolume: state.milestoneVolume,
       todayMission: state.todayMission || "Your Mission",
     });
     setLogText("");
@@ -276,17 +282,40 @@ export default function App() {
 
                     <div>
                       <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
-                        <Volume2 className="h-4 w-4" /> Reward volume
+                        <Volume2 className="h-4 w-4" /> Regular token volume
                       </div>
                       <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
                         <Slider
-                          value={[state.volume]}
+                          value={[state.regularVolume]}
                           min={0}
                           max={100}
                           step={1}
-                          onValueChange={(value) => setState((previous) => ({ ...previous, volume: value[0] ?? 80 }))}
+                          onValueChange={(value) =>
+                            setState((previous) => ({ ...previous, regularVolume: value[0] ?? previous.regularVolume }))
+                          }
                         />
-                        <div className="mt-2 text-sm text-slate-200">{state.volume}%</div>
+                        <div className="mt-2 text-sm text-slate-200">{state.regularVolume}%</div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
+                        <Volume2 className="h-4 w-4" /> Milestone volume
+                      </div>
+                      <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
+                        <Slider
+                          value={[state.milestoneVolume]}
+                          min={0}
+                          max={100}
+                          step={1}
+                          onValueChange={(value) =>
+                            setState((previous) => ({
+                              ...previous,
+                              milestoneVolume: value[0] ?? previous.milestoneVolume,
+                            }))
+                          }
+                        />
+                        <div className="mt-2 text-sm text-slate-200">{state.milestoneVolume}%</div>
                       </div>
                     </div>
 
